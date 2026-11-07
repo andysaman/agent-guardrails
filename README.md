@@ -64,18 +64,19 @@ Keep guidance short. Prefer a check over a paragraph. Add or remove policies in 
 
 Demo / product polish:
 
-1. **Reuse in another project** — show how to wire the same hook engine into a second repo so protection lives with the project that needs it.
-2. **Session onboard** — on chat start, confirm the engine is loaded and inject a one-line status.
-3. **Bounded tasks** — name a few checks (`test`) and treat exit 0 as done.
+1. **Reuse in another project** — wire the same hook into a second repo.
+2. **Claude Code support** — run the same rules via a Claude Code Bash hook.
+3. **Session onboard** — on chat start, confirm the engine is loaded.
+4. **Bounded tasks** — treat named checks (`test`) exit 0 as done.
 
-Toward a stronger security control (still shell-hook scoped; not a supply-chain scanner):
+Toward a stronger security control (shell-hook scoped; not a supply-chain scanner):
 
-4. **Adversarial fixture suite** — freeze known bypass shapes (`zsh`/`dash`, download-then-run, odd wrappers) as regression tests; each new rule ships with allow/deny/ask cases that try to sneak past it.
-5. **Argv-aware matching** — split simple pipelines/chains into command words before classify, so path shells, `sudo` flags, and quoted refs stop depending on one mega-regex.
-6. **Fail closed on bad input** — deny (not ask) when hook JSON is missing/invalid; keep ask only for intentional human judgment.
-7. **Decision audit log** — append allow/deny/ask + rule id + command hash locally so reviews can prove the gate ran.
-8. **Project policy overlay** — let a consuming repo enable/disable rules and protected refs without forking the engine (config next to the hook, registry stays the compile-time default).
-9. **Hook coverage map** — document which agent actions this gate sees vs misses (shell only today), and add the next Cursor hook surface only when it closes a real gap.
+5. **Adversarial fixture suite** — regression fixtures for known bypass shapes; each new rule ships allow/deny/ask cases.
+6. **Argv-aware matching** — split pipelines/chains into command words before classify.
+7. **Fail closed on bad input** — deny when hook JSON is missing/invalid; ask only for human judgment.
+8. **Decision audit log** — append allow/deny/ask + rule id + command hash locally.
+9. **Project policy overlay** — enable/disable rules and protected refs without forking the engine.
+10. **Hook coverage map** — document what this gate sees vs misses; add surfaces only when they close a real gap.
 
 No separate architecture doc. The code and `AGENTS.md` are the design.
 
