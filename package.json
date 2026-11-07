@@ -1,0 +1,26 @@
+{
+  "name": "agent-guardrails",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A small demo of agent hooks and a tiny guardrail engine with pluggable rules.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && rm -f dist/types.js",
+    "prepare": "npm run build",
+    "demo": "node --experimental-strip-types src/demo.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "audit:critical": "npm audit --audit-level=critical",
+    "test": "npm run build && node --experimental-strip-types --test \"src/**/*.test.ts\" && npm run lint && npm run typecheck"
+  },
+  "engines": {
+    "node": "^22.12.0 || >=24"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.6",
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.0"
+  },
+  "license": "MIT"
+}

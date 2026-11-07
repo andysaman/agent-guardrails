@@ -1,0 +1,53 @@
+# `src/` engine conventions
+
+Same conventions as `.cursor/rules/gate.mdc` (globs also cover `.cursor/hooks/**`). Keep this file and that rule in sync.
+
+These notes are for the **engine and registry**, not the text of individual guardrail policies.
+
+## Import graph
+
+```
+types.ts                 # contracts only (erased at emit; not shipped in dist)
+    ↑
+rules/<id>.ts            # one file = one guardrail; imports types only
+    ↑
+registry.ts              # enabled rules + shellMatcher()
+    ↑
+engine.ts                # applies gates; deny short-circuit; keep scanning after ask
+    ↑
+run-gate.ts → dist/run-gate.js   # Cursor hook entry (compiled)
+
+rules/<id>.examples.ts → demo-fixtures.ts → demo.ts   # not on the hook / dist path
+```
+
+1. **`types.ts` is the type root.** Shared contracts are defined only here.
+2. **Rules do not import each other** (or the engine/registry). Wire through `types` + `registry`.
+3. **`engine.ts` stays policy-free.** No rule-specific strings or patterns.
+4. **`registry.ts` is the only enable-list.** No filesystem auto-discovery.
+5. **Hook scripts stay thin and generic.** Always `run-gate` → `dist/run-gate.js`; never name a rule in the hook.
+6. **Examples stay off the hook path.** Put fixtures in `rules/<id>.examples.ts` and wire them through `demo-fixtures.ts`.
+7. **`dist/` is hook runtime only.** Build excludes `*.test.ts`, `*.examples.ts`, `demo.ts`, and `demo-fixtures.ts`.
+
+## Adding or removing a guardrail
+
+1. Add or delete `src/rules/<id>.ts`, `src/rules/<id>.examples.ts`, and the colocated test.
+2. Add or remove the rule from `src/registry.ts` and its examples from `src/demo-fixtures.ts`.
+3. Set `matchTokens` + a cheap `applies()` on the rule.
+4. Copy `shellMatcher()` into `.cursor/hooks.json` `matcher` (the registry test enforces this).
+5. Do not change `engine.ts` or `run-gate.ts` for policy swaps.
+6. Run `npm run build` so `dist/` (and the Cursor hook) stay current.
+
+## Engine invariants
+
+- Skip `classify` when `applies` is false.
+- Stop at the first deny; keep scanning after ask in case a later rule denies.
+- Prefer fixture-friendly pure functions; I/O stays at the hook edge.
+- Do not grow a shell parser inside the engine. Small regexes belong in rule modules.
+
+## Tests and lint
+
+- Colocate: `rules/foo.ts` → `rules/foo.test.ts`; `engine.ts` → `engine.test.ts`.
+- Engine tests use stub rules; they must not import production rule modules.
+- Arrange / Act / Assert with section comments.
+- Demo and unit tests run on `src/` via type stripping; `dist.test.ts` asserts a lean `dist/`.
+- `npm run lint` must stay clean (Biome). Fix with `npm run lint:fix` when safe.

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "node dist/run-gate.js",
+        "matcher": "\\b(?:curl|git|wget)\\b",
+        "timeout": 10,
+        "failClosed": true
+      }
+    ]
+  }
+}
